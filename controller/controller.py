@@ -1,6 +1,7 @@
 import argparse
 import os, sys, time
 import grpc
+from scapy.layers.inet import Ether
 
 sys.path.append(
     os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -9,6 +10,7 @@ import p4runtime_lib.bmv2
 from p4runtime_lib.switch import ShutdownAllSwitchConnections
 import p4runtime_lib.helper
 from p4.v1 import p4runtime_pb2_grpc
+from p4.v1 import p4runtime_pb2
 
 
 def printGrpcError(e):
@@ -77,6 +79,13 @@ def main(p4info_file_path, bmv2_file_path):
             print('cap')
             for item in s1.stream_msg_resp:
                 print(item)
+                eth = Ether(item.packet.payload)
+                # eth.dst = '08:00:00:00:02:33'
+                eth.show()
+                request = p4runtime_pb2.StreamMessageRequest()
+                request.packet.payload = item.packet.payload
+                s2.requests_stream.put(request)
+
 
             time.sleep(1)
 
