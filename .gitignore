@@ -2,3 +2,4 @@ logs
 pcaps
 .idea
 venv
+*.pyc
