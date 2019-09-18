@@ -70,7 +70,7 @@ class FlowProgram:
         return variable
 
     def gen_pit_pipeline(self):
-        self.get_variable("ingress").value.extend(["s1:1","s2:1"]) # TODO: get port by label
+        self.get_variable("ingress").value.extend(["s1:p1","s3:p1"]) # TODO: get port by label
         #self.get_variable("global_mac_table").value={"00:00:00:00:00:02":"s1:1","00:00:00:00:00:01":"s5:1"}
         for inst in self.instructions:
             inst.gen_pit()

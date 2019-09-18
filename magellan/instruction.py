@@ -1,5 +1,5 @@
 from __future__ import print_function
-
+from itertools import product
 import sys, os, inspect, importlib
 from .table import Table
 from .variable import RefVariable, ConstantVariable, TupleVariable
@@ -134,8 +134,24 @@ class Instruction:
                 self.outputs[0].name: TRUE}
             })
         else: # udf
-            if self.mapping not in ['move', 'spanning_tree']:
-                functions[self.mapping]('s1', 's2')
+            if self.mapping not in ['move']:
+                args = [v.value for v in self.inputs if v.name[0] != 'g']
+                pairs = [tuple for tuple in product(*args)]
+                for p in pairs:
+                    entry = {
+                        PRIORITY: 1,
+                        DATA: {
+                            self.gv.name: TRUE,
+                            self.outputs[0].name: functions[self.mapping](*p)
+                        }
+                    }
+                    x = 0
+                    for i in self.inputs:
+                        if i.name[0] != 'g':
+                            entry[DATA][i.name] = p[x]
+                            x += 1
+                    self.pit.entries.append(entry)
+
 
     def dump(self):
         if self.gv is not None:

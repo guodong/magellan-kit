@@ -1,5 +1,5 @@
 import json
-
+from itertools import product
 
 class Host:
     def __init__(self, id):
@@ -8,7 +8,8 @@ class Host:
 
 
 class Port:
-    def __init__(self):
+    def __init__(self, id):
+        self.id = id
         self.program = None
 
         # revert pointer to device
@@ -26,11 +27,13 @@ class Topology:
         self.hosts = {}
         self.switches = {}
         self.links = []
+        self.port_graph = []
+
         topo_obj = json.loads(topo_json)
         for id, ports in topo_obj['hosts'].items():
             h = Host(id)
             for pid, pconf in ports.items():
-                p = Port()
+                p = Port(pid)
                 p.device = h
                 h.ports[pid] = p
             self.hosts[id] = h
@@ -38,7 +41,7 @@ class Topology:
         for id, ports in topo_obj['switches'].items():
             s = Switch(id)
             for pid, pconf in ports.items():
-                p = Port()
+                p = Port(pid)
                 p.device = s
                 s.ports[pid] = p
             self.switches[id] = s
@@ -49,6 +52,9 @@ class Topology:
             l = [{'device': self.__get_node_by_id(src_dev_id), 'port': self.__get_port_by_id(src_dev_id, src_port_id)},
                  {'device': self.__get_node_by_id(dst_dev_id), 'port': self.__get_port_by_id(dst_dev_id, dst_port_id)}]
             self.links.append(l)
+
+            for s in self.switches.values():
+                self.links += [[{'device': s, 'port': p1}, {'device': s, 'port': p2}] for p1, p2 in product(s.ports.values(), s.ports.values())]
 
     def __get_node_by_id(self, id):
         if id in self.hosts:
@@ -65,3 +71,5 @@ class Topology:
             return dev.ports[port_id]
 
         return None
+
+

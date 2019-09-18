@@ -17,7 +17,7 @@ class DataStore:
     def init(self, args):
         for k, v in args.items():
             if v == 'map':
-                self.data[k] = {'1': 's1:1'}
+                self.data[k] = {'1': 's1:p1'}
             elif v == 'set':
                 self.data[k] = []
             elif v == 'int':
